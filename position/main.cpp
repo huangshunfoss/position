@@ -4,6 +4,51 @@
 using namespace std;
 using namespace cv;
 
+/*函数功能：求两条直线交点*/
+/*输入：两条Vec4i类型直线*/
+/*返回：Point2f类型的点*/
+Point2f getCrossPoint(Vec4i LineA, Vec4i LineB)
+{
+	double ka, kb, ba, bb;
+	Point2f crossPoint = Point2f(0, 0);
+	if (LineA[2] == LineA[0])
+	{
+		if (LineB[2] == LineB[0])
+		{
+			cout << "Parallel lines." << endl;
+			return crossPoint;
+		}
+		else
+		{
+			kb = (double)(LineB[3] - LineB[1]) / (double)(LineB[2] - LineB[0]);
+			bb = (LineB[0] * LineB[3] - LineB[2] * LineB[1]) / (LineB[0] - LineB[2]);
+
+			crossPoint.x = LineA[0];
+			crossPoint.y = kb * LineA[0] + bb;
+			return crossPoint;
+		}
+	}
+	else if (LineB[2] == LineB[0])
+	{
+		ka = (double)(LineA[3] - LineA[1]) / (double)(LineA[2] - LineA[0]);
+		ba = (LineA[0] * LineA[3] - LineA[2] * LineA[1]) / (LineA[0] - LineA[2]);
+
+		crossPoint.x = LineB[0];
+		crossPoint.y = ka * LineB[0] + ba;
+		return crossPoint;
+	}
+	else
+	{
+		ka = (double)(LineA[3] - LineA[1]) / (double)(LineA[2] - LineA[0]);
+		kb = (double)(LineB[3] - LineB[1]) / (double)(LineB[2] - LineB[0]);
+		ba = (LineA[0] * LineA[3] - LineA[2] * LineA[1]) / (LineA[0] - LineA[2]);
+		bb = (LineB[0] * LineB[3] - LineB[2] * LineB[1]) / (LineB[0] - LineB[2]);
+		crossPoint.x = (bb - ba) / (ka - kb);
+		crossPoint.y = (ka*bb - ba * kb) / (ka - kb);
+		return crossPoint;
+	}
+}
+
 int main()
 {
 	//Load raw image
@@ -28,11 +73,13 @@ int main()
 	waitKey();
 
 	//Calc canny border
-	//Mat canny0;
-	//Canny(thresh0, canny0, 0, 10, 3);
-	//namedWindow("canny", WINDOW_NORMAL);
-	//imshow("canny", canny0);
-	//waitKey();
+	Mat canny0;
+	Canny(thresh0, canny0, 0, 10, 3);
+	namedWindow("canny", WINDOW_NORMAL);
+	imshow("canny", canny0);
+	waitKey();
+
+
 
 	//Find biggest bright area's contour and mask
 	vector<vector<Point> > contours0;
@@ -107,5 +154,28 @@ int main()
 	imwrite("./AB.bmp", img0_display);
 	//缺点和需要进一步改进的地方：拍照得到的样品是歪的，这种情况得到的AB位置会不太准确
 
+	//Hough Line Transform
+	vector<Vec4i> lines0, linesf; // will hold the results of the detection
+	HoughLinesP(canny0, lines0, 1, CV_PI / 180, 100, 500, 100);
+	// Draw the lines
+	Mat img0_empty = Mat::zeros(img0.size(), CV_8UC1);
+	for (size_t i = 0; i < lines0.size(); i++)
+	{
+		if (lines0[i][0] < rect1.x + rect2.x || lines0[i][2] < rect1.x + rect2.x || lines0[i][1] > rect1.y + rect2.y + rect2.height  || lines0[i][3] > rect1.y + rect2.y + rect2.height)
+		{
+			continue;
+		}
+		line(img0_empty, Point(lines0[i][0], lines0[i][1]), Point(lines0[i][2], lines0[i][3]), Scalar(255), 3, LINE_AA);
+		linesf.push_back(Vec4i(lines0[i][0], lines0[i][1], lines0[i][2], lines0[i][3]));
+	}
+	namedWindow("lines", WINDOW_NORMAL);
+	imshow("lines", img0_empty);
+	waitKey();
+	imwrite("./lines.bmp", img0_empty);
+	Point2f result = getCrossPoint(linesf[0], linesf[1]);
+	cout << result << endl;
+
+	getchar();
 	return 0;
 }
+
