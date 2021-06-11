@@ -1,11 +1,10 @@
+#pragma once
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "back.h"
 
 using namespace std;
 using namespace cv;
 
-int main()
-{
-	getBackCorner(0);
-}
+Point2f getCrossPoint(Vec4i LineA, Vec4i LineB);
+
+int getBackCorner(int num);
