@@ -12,11 +12,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="back.cpp" />
+    <ClCompile Include="common.cpp" />
     <ClCompile Include="front.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="back.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="front.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D1209AF5-2E38-471B-B5C4-206E73133B10}</ProjectGuid>
