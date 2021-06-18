@@ -5,5 +5,5 @@
 using namespace std;
 using namespace cv;
 
-/// common and shared functions are placed here
+// common and shared functions are placed here
 Point2f getCrossPoint(Vec4i LineA, Vec4i LineB);
